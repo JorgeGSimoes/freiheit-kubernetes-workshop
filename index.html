@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Number Generator with Timing</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .results { margin-top: 20px; }
+    .results div { margin-bottom: 5px; }
+  </style>
+</head>
+<body>
+
+  <h1>Random Number Generator Timing</h1>
+
+  <button onclick="fetchSingleRandomNumber()">Generate Single Random Number</button>
+  <button onclick="fetchMultipleRandomNumbers()">Generate Multiple Parallel Random Numbers</button>
+
+  <div class="results" id="results"></div>
+
+  <script>
+    const apiUrl = '/random';
+
+    // Function to fetch a single random number and measure the time taken
+    function fetchSingleRandomNumber() {
+      const start = performance.now();
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const timeTaken = (performance.now() - start).toFixed(2);
+          document.getElementById('results').innerHTML = `<div>Single Request Time: ${timeTaken} ms</div>`;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Function to fetch 1000 random numbers in parallel and measure the total time taken
+    function fetchMultipleRandomNumbers() {
+      const n = 50
+      // Clear previous results and show loading message
+        document.getElementById('results').innerHTML = `Loading ${n} random numbers...`;
+
+      // Record the start time
+      const start = performance.now();
+
+      // Create an array of 1000 fetch requests
+      const requests = Array.from({ length: n }, () => fetch(apiUrl).then(response => response.json()));
+
+      // Wait for all requests to complete and measure total time
+      Promise.all(requests)
+        .then(() => {
+          const timeTaken = (performance.now() - start).toFixed(2);
+            document.getElementById('results').innerHTML = `<div>Total Time for ${n} Requests: ${timeTaken} ms</div>`;
+        })
+        .catch(error => console.error('Error in multiple requests:', error));
+    }
+  </script>
+
+</body>
+</html>
+
